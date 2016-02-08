@@ -1,10 +1,10 @@
-#'This function simulates a hair snare mark recapture experiment with hair sample subsampling and 
+#'This function simulates a hair snare mark recapture experiment with hair sample subsampling and
 #'failed DNA identification.
 #'@param N an integer that is the true population size
 #'@param p a vector of size 2 containing the capture and recapture probabilities...fix this
 #'@param occ an integer that is the number of capture occasions to simulate
 #'@param K an integer that is the number of traps to simulate
-#'@param traptype a character string specifying the trap type.  "single" 
+#'@param traptype a character string specifying the trap type.  "single"
 #'allows individuals to be caught in at most 1 trap per occasion and "multi" allows
 #'individuals to be caught in multiple traps per occasion.
 #'@param lambda_h a positive value specifying the parameter for the zero-truncated Poisson
@@ -27,16 +27,10 @@
 #'an individual identification
 #'param hettype a character string specifying the type of individual heterogeneity.  Either "logitnormal" or "finitemixture".
 #'@return a list with the simulated quantities and statistics (expand description later)
-#'@include captureMh2
-#'@include deposit
-#'@include subsample
-#'@include DNAamp
-#'@include calcSS
-#'@include calcSUR
 #'@export
 simMhmisscap=function(N,p,occ,K,traptype,lambda_h,lambda_c=NULL,
                   delta=NULL,kappa_h=NULL,kappa_t=NULL,cluster=FALSE,kappa_c=NULL,alpha=NULL,hettype="logitnormal"){
-  ##check for input errors  
+  ##check for input errors
   if(is.null(kappa_h)&is.null(delta)){
     stop("Must enter either kappa_h or delta")
   }
@@ -54,11 +48,11 @@ simMhmisscap=function(N,p,occ,K,traptype,lambda_h,lambda_c=NULL,
   }
   ##Capture process
   if(hettype=="logitnormal"){
-    W=captureMh2(p,N,occ,traptype,K)    
+    W=captureMh2(p,N,occ,traptype,K)
   } else {
     W=captureMh(p,N,occ,traptype,K)
   }
-  
+
   ##Hair deposition process
   S=deposit(W,lambda_h,traptype,K,cluster,lambda_c)
   ##Subsampling process
@@ -82,7 +76,7 @@ simMhmisscap=function(N,p,occ,K,traptype,lambda_h,lambda_c=NULL,
   }
   Wobsfull=(R>0)*1
   empty=apply(Wobsfull,1,function(x){all(x==0)})
-  if(any(empty==TRUE)){ 
+  if(any(empty==TRUE)){
     Wobs=Wobsfull[-which(empty==T),,]
     S=S[-which(empty==TRUE),,]
     U=U[-which(empty==TRUE),,]
@@ -91,7 +85,7 @@ simMhmisscap=function(N,p,occ,K,traptype,lambda_h,lambda_c=NULL,
     Wobs=Wobsfull
   }
   n=dim(Wobs)[1]
-  
+
   ####Calculate capture history stats#####
   #Collapse capture histories
   W2D=(apply(W,1:2,sum)>0)*1

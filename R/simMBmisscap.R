@@ -1,10 +1,10 @@
-#'This function simulates a hair snare mark recapture experiment with hair sample subsampling and 
+#'This function simulates a hair snare mark recapture experiment with hair sample subsampling and
 #'failed DNA identification.
 #'@param N an integer that is the true population size
 #'@param p a vector of size 2 containing the capture and recapture probabilities
 #'@param occ an integer that is the number of capture occasions to simulate
 #'@param K an integer that is the number of traps to simulate
-#'@param traptype a character string specifying the trap type.  "single" 
+#'@param traptype a character string specifying the trap type.  "single"
 #'allows individuals to be caught in at most 1 trap per occasion and "multi" allows
 #'individuals to be caught in multiple traps per occasion.
 #'@param btype a character string specifying the type of behavioral response to capture.
@@ -29,16 +29,10 @@
 #'@param alpha a numeric value between 0 and 1 specifying the probability that a hair sample produces
 #'an individual identification when genotyped.
 #'@return a list with the simulated quantities and statistics (expand description later)
-#'@include capture
-#'@include deposit
-#'@include subsample
-#'@include DNAamp
-#'@include calcSS
-#'@include calcSUR
 #'@export
 simMBmisscap=function(N,p,occ,K,traptype,btype="global",lambda_h,lambda_c=NULL,
                   delta=NULL,kappa_h=NULL,kappa_t=NULL,cluster=FALSE,kappa_c=NULL,alpha=NULL){
-  ##check for input errors  
+  ##check for input errors
   if(is.null(kappa_h)&is.null(delta)){
     stop("Must enter either kappa_h or delta")
   }
@@ -50,7 +44,7 @@ simMBmisscap=function(N,p,occ,K,traptype,btype="global",lambda_h,lambda_c=NULL,
   }
   ##Capture process
   W=capture(p,N,occ,traptype,btype,K)
-  
+
   ##Hair deposition process
   S=deposit(W,lambda_h,traptype,K,cluster,lambda_c)
   ##Subsampling process
@@ -74,7 +68,7 @@ simMBmisscap=function(N,p,occ,K,traptype,btype="global",lambda_h,lambda_c=NULL,
   }
   Wobsfull=(R>0)*1
   empty=apply(Wobsfull,1,function(x){all(x==0)})
-  if(any(empty==TRUE)){ 
+  if(any(empty==TRUE)){
     Wobs=Wobsfull[-which(empty==T),,]
     S=S[-which(empty==TRUE),,]
     U=U[-which(empty==TRUE),,]
@@ -83,7 +77,7 @@ simMBmisscap=function(N,p,occ,K,traptype,btype="global",lambda_h,lambda_c=NULL,
     Wobs=Wobsfull
   }
   n=dim(Wobs)[1]
-  
+
   ####Calculate capture history stats#####
   #Collapse capture histories
   W2D=(apply(W,1:2,sum)>0)*1

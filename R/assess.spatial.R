@@ -1,9 +1,10 @@
-#'This function asseses some frequentist properties when naively fitting Mb to spatial capture histories that are missing data.
-#'@param N an integer that is the true population size
+#'This function asseses some frequentist properties when naively fitting Mb to spatial capture histories that are missing captures due to subsampling and/or failed DNA amplification.
+#'Models are fit via the secr package.
+#'#'@param N an integer that is the true population size
 #'@param p a vector of size 2 containing the capture and recapture probabilities
 #'@param occ an integer that is the number of capture occasions to simulate
 #'@param K an integer that is the number of traps to simulate
-#'@param traptype a character string specifying the trap type.  "single" 
+#'@param traptype a character string specifying the trap type.  "single"
 #'allows individuals to be caught in at most 1 trap per occasion and "multi" allows
 #'individuals to be caught in multiple traps per occasion.
 #'@param btype a character string specifying the type of behavioral response to capture
@@ -31,7 +32,6 @@
 #'@param cores the number of cores to do the simulation on.  A typical for loop is used if cores=1 and
 #'the foreach package is used if cores>1
 #'@return a list with the simulation results (expand later)
-#'@include simMBmisscap
 #'@export
 
 assess.spatial=function(N,occ,lambda,sigma,locs,buff,spacing,btype="global",lambda_h,lambda_c=NULL,
@@ -78,9 +78,9 @@ assess.spatial=function(N,occ,lambda,sigma,locs,buff,spacing,btype="global",lamb
       capthist=make.capthist(input,traps)
       #plot(capthist,tracks=TRUE)
       ## generate habitat mask
-      fitmask=make.mask (traps, buffer = buff[2], spacing = spacing)  
+      fitmask=make.mask (traps, buffer = buff[2], spacing = spacing)
       secr.model=secr.fit(capthist,model=mod,mask=fitmask,start=starts)
-      predmask=make.mask (traps, buffer = buff[1], spacing = spacing)  
+      predmask=make.mask (traps, buffer = buff[1], spacing = spacing)
       Nhat=region.N(secr.model,region=predmask)
       RN=as.numeric((Nhat[2,c(1,3,4)]))
       storeN[i,]=RN
@@ -102,7 +102,7 @@ assess.spatial=function(N,occ,lambda,sigma,locs,buff,spacing,btype="global",lamb
     registerDoSNOW(cl.tmp)
     #clusterExport(cl.tmp, varlist=c("alpha","btype","cluster","delta"), envir = environment())
     clusterExport(cl.tmp, list=ls(environment()), envir = environment())
-    
+
     out2=foreach(i=1:sims,.packages=c("VGAM","secr","Mbmisscap","sp","abind"),.export="simSpatial") %dopar% {
       data=simSpatial(N,occ,lambda,sigma,locs,buff[1],btype,lambda_h,lambda_c=lambda_c,
                       delta=delta,kappa_h=kappa_h,kappa_t=kappa_t,cluster=cluster,
@@ -118,12 +118,12 @@ assess.spatial=function(N,occ,lambda,sigma,locs,buff,spacing,btype="global",lamb
       capthist=make.capthist(input,traps)
       #plot(capthist,tracks=TRUE)
       ## generate habitat mask
-      fitmask=make.mask (traps, buffer = buff[2], spacing = spacing)  
+      fitmask=make.mask (traps, buffer = buff[2], spacing = spacing)
       secr.model=secr.fit(capthist,model=mod,mask=fitmask,start=starts)
-      predmask=make.mask (traps, buffer = buff[1], spacing = spacing)  
+      predmask=make.mask (traps, buffer = buff[1], spacing = spacing)
       Nhat=region.N(secr.model,region=predmask)
       RN=as.numeric((Nhat[2,c(1,3,4)]))
-      
+
       return(list(RN,
                   colSums(data$W2D),
                   colSums(data$Wobs2D),
@@ -161,7 +161,7 @@ assess.spatial=function(N,occ,lambda,sigma,locs,buff,spacing,btype="global",lamb
   Ncover=round(sum(storeN[,2]<N&storeN[,3]>N,na.rm=TRUE)/sims,2)
   Nwidth=round(mean(storeN[,3]-storeN[,2],na.rm=TRUE),2)
   Nstats=data.frame(MeanNhat=round(Nmean,2),Bias=Nbias,Coverage=Ncover,CIwidth=Nwidth)
-  
+
   #Calculate capstats stats
   CapStats=rbind(colMeans(storeCapsTrue),colMeans(storeCapsObs),colMeans(storeCapsTrue)-colMeans(storeCapsObs))
   rownames(CapStats)=c("True Capture Events","Observed Capture Events","NMissing")
@@ -175,7 +175,7 @@ assess.spatial=function(N,occ,lambda,sigma,locs,buff,spacing,btype="global",lamb
   CapStats=rbind(CapStats,CapStats[6,]/CapStats[5,])
   CapStats=round(CapStats,2)
   rownames(CapStats)[5:8]=c("True First Captures","Observed First Captures","NMissing","%remain")
-  
+
   #Calculate hair stats
   HairStats=rbind(colMeans(storeS),colMeans(storeU),colMeans(storeR))
   HairStats=cbind(HairStats,rowSums(HairStats))
@@ -183,6 +183,6 @@ assess.spatial=function(N,occ,lambda,sigma,locs,buff,spacing,btype="global",lamb
   HairStats=rbind(HairStats,HairStats[2,]/HairStats[1,],HairStats[3,]/HairStats[1,])
   rownames(HairStats)=c("Sdotj","Udotj","Rdotj","%remainU","%remainR")
   HairStats=round(HairStats,2)
-  
+
   return(list(Nstats=Nstats,CapStats=CapStats,HairStats=HairStats,storeN=storeN))
 }

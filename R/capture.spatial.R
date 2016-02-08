@@ -1,10 +1,10 @@
-#'This function simulates a spatial capture process
+#'This function simulates a spatial capture-recapture process with the gaussian hazard detection function
 #'@param N an integer that is the true population size
 #'@param occ an integer that is the number of capture occasions to simulate
-#'@param lambda
-#'@param sigma
-#'@param locs
-#'@param buff
+#'@param lambda lambda rate parameter at 0 for hazard gaussian detection function
+#'@param sigma the spatial scale parameter
+#'@param locs a J x 2 matrix of trap locations
+#'@param buff an integer specifying the buffer for simulating the population
 #'@param btype a character string specifying the type of behavioral response to capture
 #'Current options are "global" for a global trap response and "trap" for a trap-specific
 #'response.  "trap" currently only works with traptype=multi.
@@ -33,15 +33,15 @@ capture.spatial=function(N,occ,lambda,sigma,locs,buff,btype=NULL){
   cmean=matrix(NA, nrow=N, ncol=K)
   for(i in 1:N){
     for(k in 1:K){
-      pmean[i,k] = 1 -exp(-lambda[1]*g[i,k]) 
-      cmean[i,k] = 1 -exp(-lambda[2]*g[i,k])       
+      pmean[i,k] = 1 -exp(-lambda[1]*g[i,k])
+      cmean[i,k] = 1 -exp(-lambda[2]*g[i,k])
     }
   }
   #trap specific Animal states.  1=not previously captured 2=previously captured
   qmean=abind(pmean,cmean,along=3)
   W=array(0,dim=c(N,occ,K)) #latent capture history
   if(btype=="trap"){
-    state=matrix(1,nrow=N,ncol=K) 
+    state=matrix(1,nrow=N,ncol=K)
     for(i in 1:N){
       for(j in 1:occ){
         for(k in 1:K){
@@ -52,9 +52,9 @@ capture.spatial=function(N,occ,lambda,sigma,locs,buff,btype=NULL){
           }
         }
       }
-    }  
+    }
   } else {  #add option for "none" instead of reusing this?
-    state=rep(1,N) 
+    state=rep(1,N)
     for(i in 1:N){
       for(j in 1:occ){
         for(k in 1:K){
@@ -65,7 +65,7 @@ capture.spatial=function(N,occ,lambda,sigma,locs,buff,btype=NULL){
           }
         }
       }
-    }  
+    }
   }
   p_i=apply(pmean,1,FUN=function(x){1-prod(1-x)})
   c_i=apply(cmean,1,FUN=function(x){1-prod(1-x)})

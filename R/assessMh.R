@@ -3,7 +3,7 @@
 #'@param p a vector of size 2 containing the capture and recapture probabilities
 #'@param occ an integer that is the number of capture occasions to simulate
 #'@param K an integer that is the number of traps to simulate
-#'@param traptype a character string specifying the trap type.  "single" 
+#'@param traptype a character string specifying the trap type.  "single"
 #'allows individuals to be caught in at most 1 trap per occasion and "multi" allows
 #'individuals to be caught in multiple traps per occasion.
 #'@param lambda_h a positive value specifying the parameter for the zero-truncated Poisson
@@ -29,17 +29,16 @@
 #'@param cores the number of cores to do the simulation on.  A typical for loop is used if cores=1 and
 #'the foreach package is used if cores>1
 #'@return a list with the simulation results (expand later)
-#'@include simMhmisscap
 #'@export
 
 assessMh=function(N,p,occ,K,traptype,lambda_h,lambda_c=NULL,delta=NULL,kappa_h=NULL,
                 kappa_t=NULL,cluster=FALSE,kappa_c=NULL,alpha=NULL,hettype="logitnormal",sims=100,cores=1){
-  
+
   if(hettype=="logitnormal"){
     if(length(p)==3){
       stop("If hettype==logitnormal, p must be of dimension 2")
     }
-    #require(Rcapture)    
+    #require(Rcapture)
   }
   if(hettype=="finitemixture"){
     if(length(p)==2){
@@ -90,8 +89,8 @@ assessMh=function(N,p,occ,K,traptype,lambda_h,lambda_c=NULL,delta=NULL,kappa_h=N
         data=simMhmisscap(N,p,occ,K,traptype,lambda_h,lambda_c,delta,kappa_h,
                           kappa_t,cluster,kappa_c,alpha,hettype="logitnormal")
         mod=closedpCI.0(data$Wobs2D, m = "Mh", h = "Normal")
-        
-        Nhat=mod$results[c(1,3,4)]    
+
+        Nhat=mod$results[c(1,3,4)]
         return(list(Nhat,
                     colSums(data$W2D),
                     colSums(data$Wobs2D),
@@ -111,7 +110,7 @@ assessMh=function(N,p,occ,K,traptype,lambda_h,lambda_c=NULL,delta=NULL,kappa_h=N
         f0=get.real(out,"f0",se=TRUE)[3:4]
         c=exp(1.96*sqrt((log(1+f0[2]^2/(f0[1]^2)))))
         Nhat=unlist(c(data$n+f0[1],data$n+f0[1]/c,data$n+f0[1]*c))
-        
+
         return(list(Nhat,
                     colSums(data$W2D),
                     colSums(data$Wobs2D),
@@ -140,9 +139,9 @@ assessMh=function(N,p,occ,K,traptype,lambda_h,lambda_c=NULL,delta=NULL,kappa_h=N
       storeR[i,]=out2[[i]][[6]]
     }
   }
-  
-  
-  
+
+
+
   #Cacluate N stats
   Nmean=mean(storeN[,1],na.rm=TRUE)
   dir=Nmean[1]-N
@@ -152,7 +151,7 @@ assessMh=function(N,p,occ,K,traptype,lambda_h,lambda_c=NULL,delta=NULL,kappa_h=N
   Nfail=sims-den
   Nstats=data.frame(MeanNhat=round(Nmean,2),Bias=Nbias,Coverage=Ncover,CIwidth=Nwidth,
                     simFails=Nfail)
-  
+
   #Calculate W stats
    CapStats=rbind(colMeans(storeCapsTrue),colMeans(storeCapsObs),colMeans(storeCapsTrue)-colMeans(storeCapsObs))
    rownames(CapStats)=c("True Capture Events","Observed Capture Events","NMissing")
@@ -168,8 +167,8 @@ assessMh=function(N,p,occ,K,traptype,lambda_h,lambda_c=NULL,delta=NULL,kappa_h=N
   HairStats=rbind(HairStats,HairStats[2,]/HairStats[1,],HairStats[3,]/HairStats[1,])
   rownames(HairStats)=c("Sdotj","Udotj","Rdotj","%remainU","%remainR")
   HairStats=round(HairStats,2)
-  
- 
+
+
   return(list(Nstats=Nstats,CapStats=CapStats,HairStats=HairStats,storeN=storeN,
               storeS=storeS,storeU=storeU))
 }

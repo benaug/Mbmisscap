@@ -1,9 +1,10 @@
- #'This function asseses some frequentist properties when naively fitting Mb to capture histories that are missing data.
+ #'This function asseses some frequentist properties when naively fitting Mb to capture histories that are missing data.  Models
+ #'are fit in Mark via Rmark
 #'@param N an integer that is the true population size
 #'@param p a vector of size 2 containing the capture and recapture probabilities
 #'@param occ an integer that is the number of capture occasions to simulate
 #'@param K an integer that is the number of traps to simulate
-#'@param traptype a character string specifying the trap type.  "single" 
+#'@param traptype a character string specifying the trap type.  "single"
 #'allows individuals to be caught in at most 1 trap per occasion and "multi" allows
 #'individuals to be caught in multiple traps per occasion.
 #'@param btype a character string specifying the type of behavioral response to capture
@@ -31,7 +32,6 @@
 #'@param cores the number of cores to do the simulation on.  A typical for loop is used if cores=1 and
 #'the foreach package is used if cores>1
 #'@return a list with the simulation results (expand later)
-#'@include simMBmisscap
 #'@export
 
 assess=function(N,p,occ,K,traptype,btype="global",lambda_h,lambda_c=NULL,delta=NULL,kappa_h=NULL,
@@ -89,14 +89,14 @@ assess=function(N,p,occ,K,traptype,btype="global",lambda_h,lambda_c=NULL,delta=N
     registerDoSNOW(cl.tmp)
     #clusterExport(cl.tmp, varlist=c("alpha","btype","cluster","delta"), envir = environment())
     clusterExport(cl.tmp, list=ls(environment()), envir = environment())
-    
+
     out2=foreach(i=1:sims,.packages=c("VGAM","RMark"),.export="simMBmisscap",.errorhandling = "remove") %dopar% {
       data=simMBmisscap(N,p,occ,K,traptype,btype,lambda_h,lambda_c,delta,kappa_h,
                         kappa_t,cluster,kappa_c,alpha)
       Mdata=as.data.frame(apply(data$Wobs2D,1,paste,collapse=""))
       colnames(Mdata)="ch"
       Mdata$ch=as.character(Mdata$ch)
-      out=mark(Mdata,model="Closed",output=FALSE,delete=FALSE,threads=1) #Mb 
+      out=mark(Mdata,model="Closed",output=FALSE,delete=FALSE,threads=1) #Mb
       f0=get.real(out,"f0",se=TRUE)[3:4]
       c=exp(1.96*sqrt((log(1+f0[2]^2/(f0[1]^2)))))
       Nhat=unlist(c(data$n+f0[1],data$n+f0[1]/c,data$n+f0[1]*c))
@@ -104,7 +104,7 @@ assess=function(N,p,occ,K,traptype,btype="global",lambda_h,lambda_c=NULL,delta=N
       params=list(Nhat,
                   get.real(out,"p")[1],
                   get.real(out,"c")[1])
-      
+
       return(list(params,
                   data$Wstats$fail,
                   colSums(data$W2D),
@@ -170,7 +170,7 @@ assess=function(N,p,occ,K,traptype,btype="global",lambda_h,lambda_c=NULL,delta=N
   LikFails100=sum(storeFail<=100)
   Nstats=data.frame(MeanNhat=round(Nmean,2),Bias=Nbias,Coverage=Ncover,CIwidth=Nwidth,
                     simFails=Nfail,LikFails0=LikFails0,LikFails100=LikFails100)
-  
+
   #Calculate capstats stats
   CapStats=rbind(colMeans(storeCapsTrue),colMeans(storeCapsObs),colMeans(storeCapsTrue)-colMeans(storeCapsObs))
   rownames(CapStats)=c("True Capture Events","Observed Capture Events","NMissing")
@@ -184,7 +184,7 @@ assess=function(N,p,occ,K,traptype,btype="global",lambda_h,lambda_c=NULL,delta=N
   CapStats=rbind(CapStats,CapStats[6,]/CapStats[5,])
   CapStats=round(CapStats,2)
   rownames(CapStats)[5:8]=c("True First Captures","Observed First Captures","NMissing","%remain")
-  
+
   #Calculate hair stats
   HairStats=rbind(colMeans(storeS),colMeans(storeU),colMeans(storeR))
   HairStats=cbind(HairStats,rowSums(HairStats))
@@ -192,13 +192,13 @@ assess=function(N,p,occ,K,traptype,btype="global",lambda_h,lambda_c=NULL,delta=N
   HairStats=rbind(HairStats,HairStats[2,]/HairStats[1,],HairStats[3,]/HairStats[1,])
   rownames(HairStats)=c("Sdotj","Udotj","Rdotj","%remainU","%remainR")
   HairStats=round(HairStats,2)
-  
+
   #calculate p stats
   pstats=apply(storepstats,1:2,mean)
   rownames(pstats)=c("p_true","p_obs","p_obs_true","p_obs_false","percent_false")
   colnames(pstats)=paste("T",1:occ,sep="")
   pstats=round(pstats,2)
-  
+
   #Calculate Mb stats
   MbStats=matrix(c(mean(storeMt1true),mean(storeMt1obs),mean(storeMdottrue),mean(storeMdotobs)),nrow=2,byrow=TRUE)
   rownames(MbStats)=c("M_t+1","M.")
