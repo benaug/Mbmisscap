@@ -1,0 +1,31 @@
+Package: Mbmisscap
+Type: Package
+Title: Mbmisscap
+Version: 0.1
+Date: 2016-02-03
+Author: Ben Augustine
+Maintainer: Ben Augustine <baugusti@vt.edu>
+Description: Simulates classical and spatial capture recapture, subsampling,
+    and DNA amplification processes and then fits capture recapture models to
+    the subsampled data sets to assess bias due to missing first captures in the
+    presence of Mb
+License: GPL-3
+LazyData: TRUE
+RoxygenNote: 5.0.1
+Collate:
+    'DNAID.R'
+    'MVHyper.R'
+    'simMBmisscap.R'
+    'assess.R'
+    'assess.spatial.R'
+    'simMhmisscap.R'
+    'assessMh.R'
+    'calcSS.R'
+    'calcSUR.R'
+    'capture.R'
+    'capture.spatial.R'
+    'captureMh.R'
+    'captureMh2.R'
+    'deposit.R'
+    'subsample.R'
+    'simSpatial.R'
