@@ -7,7 +7,7 @@
 #'
 calcSS=function(W2D,Wobs2D,Wobsfull2D){
   occ=ncol(W2D)
-  
+
   #######Calculate missing first caps
   firstTrue=rep(0,nrow(W2D))
   for(i in 1:nrow(W2D)){
@@ -31,8 +31,8 @@ calcSS=function(W2D,Wobs2D,Wobsfull2D){
   ##Calculate p stats
   firstTruefact=factor(firstTrue)
   firstObsfullfact=factor(firstObsfull)
-  levels(firstTruefact)=1:6
-  levels(firstObsfullfact)=1:6
+  levels(firstTruefact)=1:occ
+  levels(firstObsfullfact)=1:occ
   tab=table(firstTruefact,firstObsfullfact)
   totalps=colSums(tab)
   tab2=tab
@@ -47,12 +47,12 @@ calcSS=function(W2D,Wobs2D,Wobsfull2D){
   ptrueobs=diag(tab)/pinpopobs # estimated capture probability of correctly identified first captures
   perfalse=nfalsecaps/totalps # percent of identified first captures that are false
   pobs=pfalse*perfalse+ptrueobs*(1-perfalse)
-  
+
   pstats=rbind(ptrue,pobs,ptrueobs,pfalse,perfalse)
   rownames(pstats)=c("p_true","p_obs","p_obs_true","p_obs_false","percent_false")
   ####Calculate True Sufficient Statistics#####
   W2D=W2D[rowSums(W2D)>0,] #remove true all zero capture histories and recalculate some things from above
-  
+
   #m_js
   firstTrue=rep(0,nrow(W2D))
   for(i in 1:nrow(W2D)){
@@ -62,19 +62,19 @@ calcSS=function(W2D,Wobs2D,Wobsfull2D){
   for(i in 2:occ){
     mj_true[i]=length(which(firstTrue[which((W2D[,i]==1))]<i))
   }
-  
+
   #M_js
   Mj_true=c(0,cumsum(table(firstTrue))[-ncol(W2D)])
   diff=ncol(W2D)-length(Mj_true)
   if(diff>0){
     Mj_true=c(Mj_true,rep(Mj_true[length(Mj_true)],diff))
   }
-  
+
   #mdot, Mdot, and Mt+1
   mdot_true=sum(mj_true)
   Mdot_true=sum(Mj_true)
   Mt1_true=nrow(W2D)
-  
+
   ####Calculate Observed Sufficient Statistics######
   #m_js
   firstObs=rep(0,nrow(Wobs2D))
@@ -86,19 +86,19 @@ calcSS=function(W2D,Wobs2D,Wobsfull2D){
   for(i in 2:occ){
     mj_obs[i]=length(which(firstObs[which((Wobs2D[,i]==1))]<i))
   }
-  
+
   #M_js
   Mj_obs=c(0,cumsum(table(firstObs))[-ncol(Wobs2D)])
   diff=ncol(W2D)-length(Mj_obs)
   if(diff>0){
     Mj_obs=c(Mj_true,rep(Mj_obs[length(Mj_obs)],diff))
   }
-  
+
   #mdot, Mdot and Mt+1
   mdot_obs=sum(mj_obs)
   Mdot_obs=sum(Mj_obs)
   Mt1_obs=nrow(Wobs2D)
-  
+
   #Observed failure criterion
   fail=sum((occ+1-2*1:occ)*(colSums(Wobs2D)-mj_obs))
   return(list(mj_true=mj_true,
