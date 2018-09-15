@@ -1,11 +1,11 @@
 #'This function simulates the hair deposition process
-#'@param W a capture history of dimension N x occ if traptype="single" or 
+#'@param W a capture history of dimension N x occ if traptype="single" or
 #'N x occ x K if traptype="multi"
 #'@param lambda_h a positive value specifying the parameter for the zero-truncated Poisson
 #'hair deposition process (S_ijk|W_ijk=1)
-#'@param traptype a character string specifying the capture process.  "single" 
+#'@param traptype a character string specifying the capture process.  "single"
 #'allows individuals to be caught in at most 1 trap per occasion and "multi" allows
-#'individuals to be caught in multiple traps per occasion.  If traptype="single", a trap id is randomly 
+#'individuals to be caught in multiple traps per occasion.  If traptype="single", a trap id is randomly
 #'assigned to each capture
 #'@param K an integer that is the number of traps to simulate
 #'@param cluster a logical indicating whether or not to simulate from the cluster model (multiple clusters per
@@ -30,14 +30,14 @@ deposit=function(W,lambda_h,traptype="multi",K,cluster=FALSE,lambda_c=NULL){
         for(j in 1:N){
           if(W[j,i]>0){
             #Randomly assign a trap at random if caught
-            S[j,i,sample(1:K,1)]=rzapois(1,lambda_h,pobs0=0)
+            S[j,i,sample(1:K,1)]=VGAM::rzapois(1,lambda_h,pobs0=0)
           }
         }
       }
     }else if(traptype=="multi"){
       #simulate hair deposition with 3D W
       for(i in 1:occ){
-        hair=matrix(rzapois(N*K,lambda_h,pobs0=0),ncol=K,nrow=N)
+        hair=matrix(VGAM::rzapois(N*K,lambda_h,pobs0=0),ncol=K,nrow=N)
         caught=W[,i,]==1
         S[,i,][caught]=hair[caught]
       }
@@ -45,7 +45,7 @@ deposit=function(W,lambda_h,traptype="multi",K,cluster=FALSE,lambda_c=NULL){
   }else{
     #cluster deposition model, multiple traps only at the moment
     C=W*0
-    C[W==1]=rzapois(sum(W),lambda_c,pobs0=0) #clusters per bear-trap-occasion
+    C[W==1]=VGAM::rzapois(sum(W),lambda_c,pobs0=0) #clusters per bear-trap-occasion
     #Lmax=max(C)
     Cdot=apply(C,2:3,sum)
     Lmax=max(Cdot)
@@ -62,7 +62,7 @@ deposit=function(W,lambda_h,traptype="multi",K,cluster=FALSE,lambda_c=NULL){
         clus=clus+Cinddotdot[i]
       }
     }
-    
+
     #Build D matrix ind-specific cluster IDs - old
 #     D=array(0,dim=c(N,occ,K,Lmax)) #cluster indicator matrix
 #     idx=which(C>0,arr.ind=TRUE) #which ind-occ-traps have least one cluster?
@@ -73,7 +73,7 @@ deposit=function(W,lambda_h,traptype="multi",K,cluster=FALSE,lambda_c=NULL){
 
 
     S=array(0,dim=c(N,occ,K,Lmax)) #deposited hair samples at each cluster
-    S[D==1]=rzapois(sum(D),lambda_h,pobs0=0) #clusters per bear-trap-occasion
+    S[D==1]=VGAM::rzapois(sum(D),lambda_h,pobs0=0) #clusters per bear-trap-occasion
   }
   return(S=S)
 }

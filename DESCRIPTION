@@ -11,7 +11,9 @@ Description: Simulates classical and spatial capture recapture, subsampling,
     presence of Mb
 License: GPL-3
 LazyData: TRUE
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
+Imports:
+    VGAM
 Collate:
     'DNAID.R'
     'MVHyper.R'
