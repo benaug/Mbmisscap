@@ -7,6 +7,7 @@
 #'
 calcSS=function(W2D,Wobs2D,Wobsfull2D){
   occ=ncol(W2D)
+  N=nrow(W2D)
 
   #######Calculate missing first caps
   firstTrue=rep(0,nrow(W2D))
