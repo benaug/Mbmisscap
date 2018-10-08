@@ -1,7 +1,6 @@
 #'This function asseses some frequentist properties when naively fitting Mb to spatial capture histories that are missing captures due to subsampling and/or failed DNA amplification.
 #'Models are fit via the secr package.
 #'#'@param N an integer that is the true population size
-#'@param p a vector of size 2 containing the capture and recapture probabilities
 #'@param occ an integer that is the number of capture occasions to simulate
 #'@param K an integer that is the number of traps to simulate
 #'@param traptype a character string specifying the trap type.  "single"
